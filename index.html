@@ -238,23 +238,43 @@ tbody tr:hover td{background:#f8fafc;}
 /* ADMIN ONLY — all visibility controlled via JS */
 
 /* CHAT */
-#chatW{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;}
-#chatBtn{width:56px;height:56px;border-radius:50%;background:var(--p);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#fff;box-shadow:0 4px 20px rgba(27,79,138,.45);}
-#chatBox{position:absolute;bottom:66px;right:0;width:310px;background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(0,0,0,.15);border:1px solid var(--border);display:none;flex-direction:column;overflow:hidden;}
+/* ── AI CHATBOT ── */
+#chatW{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9990;}
+#chatBtn{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--s));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;box-shadow:0 4px 24px rgba(27,79,138,.5);transition:.2s;}
+#chatBtn:hover{transform:scale(1.08);}
+#chatBox{position:absolute;bottom:70px;right:0;width:340px;background:#fff;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.18);border:1px solid var(--border);display:none;flex-direction:column;overflow:hidden;max-height:520px;}
 #chatBox.open{display:flex;animation:mIn .3s ease;}
-.chd{background:linear-gradient(90deg,#0f3460,#1b4f8a);padding:.9rem 1rem;display:flex;align-items:center;gap:.75rem;}
-.chd-av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
-.chd strong{color:#fff;font-size:.88rem;display:block;}.chd small{color:rgba(255,255,255,.6);font-size:.7rem;}
-.ch-msgs{flex:1;padding:.9rem;overflow-y:auto;max-height:270px;display:flex;flex-direction:column;gap:.5rem;}
-.msg .bub{padding:.55rem .85rem;border-radius:12px;font-size:.8rem;line-height:1.45;}
-.msg.in .bub{background:#f0f4f8;border-radius:4px 12px 12px 12px;}
+.chd{background:linear-gradient(135deg,#0f3460,#1b4f8a,#16a085);padding:1rem 1.1rem;display:flex;align-items:center;gap:.75rem;}
+.chd-av{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.chd-info{flex:1;}.chd strong{color:#fff;font-size:.88rem;display:block;font-weight:700;}
+.chd small{color:rgba(255,255,255,.65);font-size:.7rem;}
+.chd-cls{background:none;border:none;color:rgba(255,255,255,.6);font-size:1.1rem;cursor:pointer;padding:.1rem .3rem;border-radius:4px;line-height:1;}
+.chd-cls:hover{color:#fff;background:rgba(255,255,255,.15);}
+.ch-msgs{flex:1;padding:.85rem;overflow-y:auto;display:flex;flex-direction:column;gap:.6rem;scroll-behavior:smooth;}
+.ch-msgs::-webkit-scrollbar{width:3px;}.ch-msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+.msg{display:flex;flex-direction:column;max-width:85%;}
+.msg .bub{padding:.6rem .9rem;border-radius:14px;font-size:.81rem;line-height:1.5;word-break:break-word;}
+.msg.in{align-self:flex-start;}
+.msg.in .bub{background:#f0f4f8;color:var(--text);border-radius:4px 14px 14px 14px;}
 .msg.out{align-self:flex-end;}
-.msg.out .bub{background:var(--p);color:#fff;border-radius:12px 4px 12px 12px;}
-.msg .ts{font-size:.62rem;color:var(--muted);margin-top:.15rem;}.msg.out .ts{text-align:right;}
-.ch-inp{display:flex;gap:.5rem;padding:.7rem;border-top:1px solid var(--border);}
-.ch-inp input{flex:1;border:1.5px solid var(--border);border-radius:18px;padding:.45rem .9rem;font-size:.82rem;font-family:'Sora',sans-serif;outline:none;}
-.ch-inp input:focus{border-color:var(--p);}
-.ch-inp button{background:var(--p);color:#fff;border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.msg.out .bub{background:linear-gradient(135deg,var(--p),#1e6bc4);color:#fff;border-radius:14px 4px 14px 14px;}
+.msg .ts{font-size:.62rem;color:var(--muted);margin-top:.2rem;}
+.msg.out .ts{text-align:right;}
+.msg.typing .bub{background:#f0f4f8;padding:.7rem 1rem;}
+.typing-dots{display:flex;gap:4px;align-items:center;}
+.typing-dots span{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:tdot 1.2s infinite;}
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes tdot{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
+.ch-inp{display:flex;gap:.5rem;padding:.7rem;border-top:1px solid var(--border);background:#fafbfd;}
+.ch-inp input{flex:1;border:1.5px solid var(--border);border-radius:20px;padding:.5rem 1rem;font-size:.82rem;font-family:'Sora',sans-serif;outline:none;background:#fff;transition:.2s;}
+.ch-inp input:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(27,79,138,.08);}
+.ch-inp button{background:linear-gradient(135deg,var(--p),var(--s));color:#fff;border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.95rem;transition:.2s;}
+.ch-inp button:hover{filter:brightness(1.1);}
+.ch-inp button:disabled{opacity:.5;cursor:not-allowed;}
+.ch-topics{display:flex;flex-wrap:wrap;gap:.4rem;padding:.5rem .85rem .85rem;}
+.ch-topic{background:#f0f4f8;border:1px solid var(--border);border-radius:20px;padding:.3rem .75rem;font-size:.72rem;cursor:pointer;transition:.15s;color:var(--text);font-family:'Sora',sans-serif;}
+.ch-topic:hover{background:var(--lblue,#dbeafe);border-color:var(--p);color:var(--p);}
 
 /* TOAST */
 #toast{position:fixed;bottom:5.5rem;right:1.5rem;z-index:9999;background:var(--text);color:#fff;padding:.75rem 1.3rem;border-radius:12px;font-size:.82rem;font-weight:600;transform:translateY(80px);opacity:0;transition:.35s;pointer-events:none;max-width:320px;line-height:1.4;}
@@ -826,13 +846,33 @@ tbody tr:hover td{background:#f8fafc;}
 <!-- ══════════════ CHAT WIDGET ══════════════ -->
 <div id="chatW">
   <div id="chatBox">
-    <div class="chd"><div class="chd-av">💬</div><div><strong>Live Chat RT.001</strong><small>🟢 Admin Online</small></div></div>
-    <div class="ch-msgs" id="chatMsgs">
-      <div class="msg in"><div class="bub">Halo! Selamat datang di portal RT.001 Rawabuntu 👋<br>Ada yang bisa kami bantu?</div><div class="ts">Admin · Sekarang</div></div>
+    <div class="chd">
+      <div class="chd-av">🤖</div>
+      <div class="chd-info">
+        <strong>Asisten RT.001</strong>
+        <small id="chatStatus">🟢 AI Siap Membantu</small>
+      </div>
+      <button class="chd-cls" onclick="toggleChat()" title="Tutup">✕</button>
     </div>
-    <div class="ch-inp"><input type="text" id="chatIn" placeholder="Tulis pesan..." onkeypress="if(event.key==='Enter')kirimChat()"><button onclick="kirimChat()">&#9658;</button></div>
+    <div class="ch-msgs" id="chatMsgs">
+      <div class="msg in">
+        <div class="bub">Halo! Saya Asisten AI Portal RT.001 Rawabuntu 👋<br><br>Saya bisa membantu menjawab pertanyaan seputar:<br>• Info RT.001 &amp; pengurus<br>• Cara pakai portal<br>• Iuran &amp; keuangan RT<br>• Aduan &amp; surat keterangan<br>• Info lingkungan &amp; kegiatan RT</div>
+        <div class="ts">Asisten AI · Sekarang</div>
+      </div>
+    </div>
+    <div class="ch-topics" id="chatTopics">
+      <button class="ch-topic" onclick="topicChat('Bagaimana cara bayar iuran RT?')">💰 Iuran RT</button>
+      <button class="ch-topic" onclick="topicChat('Siapa saja pengurus RT.001?')">👔 Pengurus</button>
+      <button class="ch-topic" onclick="topicChat('Bagaimana cara buat surat keterangan?')">📄 Surat RT</button>
+      <button class="ch-topic" onclick="topicChat('Bagaimana cara kirim aduan?')">📣 Kirim Aduan</button>
+      <button class="ch-topic" onclick="topicChat('Apa kegiatan RT yang akan datang?')">📅 Kegiatan</button>
+    </div>
+    <div class="ch-inp">
+      <input type="text" id="chatIn" placeholder="Tanya sesuatu tentang RT.001..." onkeypress="if(event.key==='Enter')kirimChat()">
+      <button onclick="kirimChat()" id="chatSendBtn">&#9658;</button>
+    </div>
   </div>
-  <button id="chatBtn" onclick="toggleChat()">💬</button>
+  <button id="chatBtn" onclick="toggleChat()" title="Chat dengan Asisten AI RT.001">🤖</button>
 </div>
 <div id="toast"></div>
 
@@ -1043,8 +1083,19 @@ tbody tr:hover td{background:#f8fafc;}
 /* Pastikan "Who has access" = Anyone                                       */
 /* GAS_URL: bisa diisi langsung di sini ATAU via Setup UI di portal
    Jika diisi di sini, nilai ini dipakai. Jika kosong, ambil dari localStorage (diset via Setup UI). */
-const GAS_URL_HARDCODED = ''; /* ← Isi URL di sini jika mau hardcode, atau biarkan kosong */
-const LIVE_GAS_URL = GAS_URL_HARDCODED || (()=>{ try{ return localStorage.getItem('rt001_gas_url')||''; }catch(e){return '';} })();
+/* ══════════════════════════════════════════════════════════════════
+   GAS URL — PENTING: Isi GAS_URL_HARDCODED dengan URL Apps Script Anda!
+   Cara: script.google.com → Deploy → copy URL → paste di bawah ini.
+   Dengan hardcode di sini, SEMUA perangkat (HP/laptop/tablet) langsung
+   terhubung ke Sheets tanpa perlu setup ulang di tiap perangkat.
+   ══════════════════════════════════════════════════════════════════ */
+const GAS_URL_HARDCODED = 'https://script.google.com/macros/s/AKfycbyUsAIhwdwOyB2tXwq6t5wH59Cl42zZv9uWhz9weimma6qgenyYzRj44d4iwYOvNFI3/exec';
+
+/* getGasUrl() selalu baca nilai terbaru — hardcode ATAU dari localStorage */
+function getGasUrl(){
+  if(GAS_URL_HARDCODED) return GAS_URL_HARDCODED;
+  try{ return localStorage.getItem('rt001_gas_url')||''; }catch(e){ return ''; }
+}
 
 /* ─── CACHE LOKAL (localStorage) ─────────────────────────────────────── */
 const LS = {
@@ -1126,10 +1177,11 @@ function setBadge(status, msg){
 
 /* Kirim request ke Google Apps Script */
 async function gasRequest(action, payload={}){
-  if(!LIVE_GAS_URL){ setBadge('nourl'); return {ok:false, offline:true}; }
+  const _gurl=getGasUrl();
+  if(!_gurl){ setBadge('nourl'); return {ok:false, offline:true}; }
   try {
     setBadge('syncing');
-    const resp = await fetch(LIVE_GAS_URL, {
+    const resp = await fetch(_gurl, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({action, data:payload, ts: new Date().toISOString()})
@@ -1150,12 +1202,12 @@ async function gasRequest(action, payload={}){
    Dipanggil saat login. Ambil semua data dari Sheets, timpa cache lokal.
    Ini memastikan semua perangkat dapat data yang SAMA. */
 async function loadFromSheets(){
-  if(!LIVE_GAS_URL){ setBadge('nourl','⚙️ GAS URL belum diatur'); return false; }
+  const _gurl2=getGasUrl(); if(!_gurl2){ setBadge('nourl','⚙️ GAS URL belum diatur'); return false; }
   setBadge('syncing','🔄 Memuat data...');
 
   try {
     /* GAS GET endpoint: getData */
-    const resp = await fetch(LIVE_GAS_URL+'?action=getData', {cache:'no-store'});
+    const resp = await fetch(_gurl2+'?action=getData', {cache:'no-store'});
     if(!resp.ok) throw new Error('HTTP '+resp.status);
     const json = await resp.json();
 
@@ -1281,7 +1333,7 @@ function enterApp(nama, role, mode){
     hideLoadingOverlay();
     if(ok) renderAll();
     /* Prompt admin untuk setup GAS jika belum ada URL */
-    if(mode==='admin' && !LIVE_GAS_URL){
+    if(mode==='admin' && !getGasUrl()){
       setTimeout(()=>{
         openM('mGasSetup');
         toast('⚙️ Setup koneksi Sheets agar data tersinkron di semua perangkat!','twarn');
@@ -1378,24 +1430,165 @@ function prvUrl(url, imgId){
   if(url){ el.src=url; el.style.display='block'; }
   else { el.style.display='none'; }
 }
+/* ══════════════════════════════════════════════════════
+   AI CHATBOT — Claude API (claude-sonnet-4-20250514)
+   Menjawab pertanyaan seputar RT.001 Rawabuntu
+   ══════════════════════════════════════════════════════ */
 let chatOpen=false;
+let chatHistory=[]; /* riwayat percakapan untuk context */
+
 function toggleChat(){
   chatOpen=!chatOpen;
   const cb=g$('chatBox');
   if(cb) cb.classList.toggle('open',chatOpen);
+  if(chatOpen){ const inp=g$('chatIn'); if(inp) setTimeout(()=>inp.focus(),300); }
 }
-function kirimChat(){
-  const inp=g$('chatIn'); if(!inp) return;
-  const msg=inp.value.trim(); if(!msg) return;
+
+function topicChat(msg){
+  const inp=g$('chatIn'); if(inp){ inp.value=msg; } kirimChat();
+}
+
+function addChatMsg(role, text){
   const msgs=g$('chatMsgs'); if(!msgs) return;
   const ts=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-  msgs.innerHTML+=`<div class="msg out"><div class="bub">${msg}</div><div class="ts">${ts}</div></div>`;
-  inp.value='';
+  const isOut=(role==='user');
+  /* Format teks: ganti **bold** dan newline */
+  const formatted = text
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\n/g,'<br>');
+  msgs.innerHTML+=`<div class="msg ${isOut?'out':'in'}">
+    <div class="bub">${formatted}</div>
+    <div class="ts">${isOut?'Anda':'Asisten AI'} · ${ts}</div>
+  </div>`;
   msgs.scrollTop=msgs.scrollHeight;
-  setTimeout(()=>{
-    msgs.innerHTML+=`<div class="msg in"><div class="bub">Pesan Anda telah diterima 👍 Pengurus RT akan merespons segera.</div><div class="ts">Admin · ${ts}</div></div>`;
-    msgs.scrollTop=msgs.scrollHeight;
-  },1200);
+}
+
+function showTyping(){
+  const msgs=g$('chatMsgs'); if(!msgs) return 'typing_'+Date.now();
+  const id='typing_'+Date.now();
+  msgs.innerHTML+=`<div class="msg typing in" id="${id}">
+    <div class="bub"><div class="typing-dots"><span></span><span></span><span></span></div></div>
+  </div>`;
+  msgs.scrollTop=msgs.scrollHeight;
+  return id;
+}
+function removeTyping(id){ const el=g$(id); if(el) el.remove(); }
+
+/* Kumpulkan data RT saat ini untuk konteks AI */
+function getRTContext(){
+  const warga=getWarga(); const kas=getKas();
+  const ann=getAnn().slice(-3); const agenda=getAgenda().slice(-5);
+  const saldo=kas.length?kas[kas.length-1].saldo:0;
+  const anns=ann.map(a=>a.judul).join(', ');
+  const agendas=agenda.map(a=>a.nama+' ('+a.tgl+')').join(', ');
+  return `Data RT.001 saat ini:
+- Total KK: ${warga.length} (Pribumi: ${warga.filter(w=>w.kat==='Pribumi').length}, Pendatang: ${warga.filter(w=>w.kat==='Pendatang').length})
+- Total jiwa: ${warga.reduce((s,w)=>s+(+w.jiwa||0),0)}
+- Saldo kas RT: Rp ${saldo.toLocaleString('id-ID')}
+- Pengumuman terbaru: ${anns||'belum ada'}
+- Agenda ke depan: ${agendas||'belum ada'}`;
+}
+
+async function kirimChat(){
+  const inp=g$('chatIn'); if(!inp) return;
+  const msg=inp.value.trim(); if(!msg) return;
+  const btn=g$('chatSendBtn');
+  const topics=g$('chatTopics');
+
+  /* Tampilkan pesan user */
+  addChatMsg('user', msg);
+  inp.value='';
+  if(btn) btn.disabled=true;
+  if(topics) topics.style.display='none';
+
+  /* Update status */
+  const statusEl=g$('chatStatus');
+  if(statusEl) statusEl.textContent='🟡 Sedang mengetik...';
+
+  /* Tambah ke history */
+  chatHistory.push({role:'user', content: msg});
+
+  /* Batasi history 10 pesan terakhir agar tidak terlalu besar */
+  if(chatHistory.length>20) chatHistory=chatHistory.slice(-20);
+
+  /* Tampilkan typing indicator */
+  const typingId=showTyping();
+
+  try {
+    const systemPrompt = `Anda adalah Asisten AI resmi Portal RT.001 Rawabuntu. Tugas Anda membantu warga dan pengurus RT.001 dengan pertanyaan seputar portal dan kehidupan warga.
+
+IDENTITAS RT.001:
+- Nama: RT.001/RW.001 Rawabuntu
+- Alamat: Jl. HML Abdul Syukur RT.001/001, Kel. Rawabuntu, Kec. Serpong, Kota Tangerang Selatan 15318
+- Pengurus: Ketua RT: Winardi (Baun) — 0812-8038-8458 | Sekretaris: Acep (Ncex) — 0895-3653-58482 | Bendahara: Nanang S — 0813-1103-4010
+
+FITUR PORTAL:
+- Dashboard: ringkasan data RT
+- Laporan Kas: transparansi keuangan RT (bisa download CSV & cetak)
+- Data Warga: daftar KK RT.001
+- Pengumuman: info resmi dari pengurus
+- Agenda: jadwal kegiatan RT
+- Aduan Warga: kirim aduan/keluhan ke pengurus
+- Surat & Formulir: permohonan surat keterangan online
+- Galeri Foto: dokumentasi kegiatan RT
+
+IURAN & KEUANGAN:
+- Iuran warga dicatat di menu Laporan Kas
+- Untuk tanya status iuran: hubungi Bendahara Nanang S
+- Laporan keuangan bisa dilihat semua warga (transparan)
+
+SURAT KETERANGAN:
+- Tersedia: Surat Domisili, SKTM, Pengantar SKCK, Surat Keterangan Warga
+- Cara: buka menu Surat & Formulir → isi form → ajukan
+- Proses: maks 1×24 jam, Senin–Sabtu 08.00–17.00 WIB
+
+ADUAN WARGA:
+- Bisa anonim atau cantumkan nama
+- Jenis: Infrastruktur, Penerangan, Kebersihan, Keamanan, Air Bersih, dll
+- Respon maks 1×24 jam
+
+${getRTContext()}
+
+INSTRUKSI:
+- Jawab dalam Bahasa Indonesia yang ramah dan mudah dipahami
+- Jawab ringkas dan langsung ke intinya (maks 3-4 kalimat kecuali butuh detail)
+- Jika pertanyaan di luar konteks RT.001, tetap bantu tapi ingatkan fokus ke RT
+- Sertakan nomor kontak pengurus jika relevan
+- Gunakan emoji secukupnya agar lebih ramah`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: chatHistory
+      })
+    });
+
+    removeTyping(typingId);
+
+    if(!response.ok){
+      const err=await response.json().catch(()=>({}));
+      throw new Error(err.error?.message||'API error '+response.status);
+    }
+
+    const data=await response.json();
+    const reply=data.content?.[0]?.text||'Maaf, tidak ada respons dari AI.';
+
+    /* Tambah respons AI ke history */
+    chatHistory.push({role:'assistant', content: reply});
+    addChatMsg('assistant', reply);
+
+  } catch(err){
+    removeTyping(typingId);
+    console.error('[AI Chat]', err);
+    addChatMsg('assistant', '⚠️ Maaf, asisten AI sedang tidak tersedia. Silakan hubungi pengurus RT langsung:\n📞 Ketua RT Winardi: 0812-8038-8458');
+  } finally {
+    if(btn) btn.disabled=false;
+    if(statusEl) statusEl.textContent='🟢 AI Siap Membantu';
+  }
 }
 function openAgendaModal(){
   if(!isAdmin){toast('🚫 Hanya Admin!','terr');return;}
@@ -1415,14 +1608,13 @@ function simpanGasUrl(){
   LS.set('rt001_gas_url', url);
   closeM('mGasSetup');
   toast('✅ URL berhasil disimpan! Menyinkronkan data...','tok');
-  /* Reload page to pick up new URL */
-  setTimeout(()=>window.location.reload(), 1500);
+  setTimeout(()=>window.location.reload(), 1200);
 }
 async function testGasUrl(){
   const url=(g$('gasUrlInput')?.value||'').trim();
   const res=g$('gasTestResult');
   if(!url){if(res)res.textContent='⚠️ Isi URL dulu'; return;}
-  if(res) res.textContent='🔄 Testing...';
+  if(res){ res.textContent='🔄 Testing...'; res.style.color=''}
   try {
     const r=await fetch(url+'?action=ping',{cache:'no-store'});
     const j=await r.json();
@@ -1430,7 +1622,7 @@ async function testGasUrl(){
     else { if(res) res.style.color='var(--d)'; if(res) res.textContent='⚠️ '+j.msg; }
   } catch(e){ if(res) res.style.color='var(--d)'; if(res) res.textContent='❌ Gagal: '+e.message; }
 }
-function openGasSetup(){ g$('gasUrlInput').value=LIVE_GAS_URL||''; openM('mGasSetup'); }
+function openGasSetup(){ g$('gasUrlInput').value=getGasUrl()||''; openM('mGasSetup'); }
 
 function doLogout(){
   isAdmin=false; loggedAdmin=null;
@@ -1551,7 +1743,7 @@ function renderAll(){
 }
 function updateGasStatusCard(){
   const el=g$('gasStatusCard'); if(!el) return;
-  if(LIVE_GAS_URL){
+  if(getGasUrl()){
     el.innerHTML='<span style="color:var(--ok);font-weight:700;">✅ Terhubung</span> — Data akan tersinkronisasi ke Google Sheets secara otomatis.';
     el.style.borderLeft='4px solid var(--ok)';
   } else {
