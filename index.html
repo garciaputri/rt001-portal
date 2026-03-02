@@ -1436,7 +1436,7 @@ function prvUrl(url, imgId){
    Menjawab pertanyaan seputar RT.001 Rawabuntu
    ══════════════════════════════════════════════════════ */
 let chatOpen=false;
-let chatHistory=[]; /* riwayat percakapan untuk context */
+/* chatbot berbasis keyword — tidak perlu history */
 
 function toggleChat(){
   chatOpen=!chatOpen;
@@ -1490,106 +1490,189 @@ function getRTContext(){
 - Agenda ke depan: ${agendas||'belum ada'}`;
 }
 
-async function kirimChat(){
+/* ══════════════════════════════════════════════════════════════
+   CHATBOT BERBASIS KEYWORD — Gratis, tanpa API
+   Menjawab pertanyaan warga seputar RT.001 Rawabuntu
+   ══════════════════════════════════════════════════════════════ */
+const CHAT_KB = [
+  /* Pengurus RT */
+  { keys:['ketua','winardi','baun','pimpin'],
+    ans:`👔 **Ketua RT.001** adalah **Winardi (Baun)**
+📞 HP: 0812-8038-8458
+
+Untuk urusan penting silakan hubungi beliau langsung ya! 😊` },
+  { keys:['sekretaris','acep','ncex','surat','administrasi'],
+    ans:`📋 **Sekretaris RT.001** adalah **Acep (Ncex)**
+📞 HP: 0895-3653-58482
+
+Untuk urusan surat-menyurat dan administrasi, hubungi Pak Acep. 😊` },
+  { keys:['bendahara','nanang','keuangan','kas','iuran','bayar','tunggak'],
+    ans:`💰 **Bendahara RT.001** adalah **Nanang S**
+📞 HP: 0813-1103-4010
+
+Untuk tanya status iuran atau keuangan RT, hubungi Pak Nanang ya! 😊` },
+  { keys:['pengurus','struktur','organisasi','siapa saja'],
+    ans:`👥 **Pengurus RT.001 Rawabuntu:**
+
+👔 Ketua RT: Winardi (Baun) — 0812-8038-8458
+📋 Sekretaris: Acep (Ncex) — 0895-3653-58482
+💰 Bendahara: Nanang S — 0813-1103-4010` },
+
+  /* Lokasi & Identitas */
+  { keys:['alamat','lokasi','dimana','rt001','rawabuntu','serpong'],
+    ans:`📍 **RT.001/RW.001 Rawabuntu**
+Jl. HML Abdul Syukur RT.001/001
+Kel. Rawabuntu, Kec. Serpong
+Kota Tangerang Selatan 15318` },
+
+  /* Iuran */
+  { keys:['iuran','bayar iuran','berapa iuran','kapan iuran'],
+    ans:`💰 **Info Iuran RT.001:**
+
+Untuk info nominal dan status iuran, silakan:
+• Hubungi Bendahara **Nanang S** (0813-1103-4010)
+• Cek menu **Laporan Iuran** di portal ini
+
+Laporan keuangan RT bisa dilihat semua warga secara transparan! 📊` },
+
+  /* Surat */
+  { keys:['surat','domisili','skck','sktm','keterangan','pengantar'],
+    ans:`📄 **Surat Keterangan RT.001:**
+
+Tersedia: Surat Domisili, SKTM, Pengantar SKCK, Surat Keterangan Warga
+
+**Cara mengajukan:**
+1. Buka menu **Surat & Formulir**
+2. Pilih jenis surat
+3. Isi form → Ajukan
+
+⏱️ Proses maks 1×24 jam (Senin–Sabtu 08.00–17.00 WIB)` },
+
+  /* Aduan */
+  { keys:['aduan','keluhan','lapor','komplain','masalah','rusak','banjir','sampah','lampu'],
+    ans:`📣 **Cara Kirim Aduan:**
+
+1. Buka menu **Aduan Warga**
+2. Isi jenis aduan & lokasi
+3. Tulis deskripsi masalah
+4. Boleh anonim atau cantumkan nama
+5. Klik Kirim
+
+⏱️ Pengurus akan merespons maks 1×24 jam. Semangat! 💪` },
+
+  /* Portal & Fitur */
+  { keys:['portal','website','aplikasi','fitur','menu','cara pakai','cara menggunakan'],
+    ans:`🖥️ **Fitur Portal RT.001:**
+
+🏠 Dashboard — ringkasan data RT
+📢 Pengumuman — info resmi RT
+📅 Agenda — jadwal kegiatan
+💰 Laporan Kas — keuangan RT
+👥 Data Warga — daftar KK
+📊 Laporan Iuran — status iuran
+🖼️ Galeri Foto — dokumentasi
+📣 Aduan Warga — kirim keluhan
+📄 Surat & Formulir — ajukan surat` },
+
+  /* Pengumuman */
+  { keys:['pengumuman','info','berita','informasi'],
+    ans:`📢 Untuk melihat pengumuman terbaru dari pengurus RT, buka menu **Pengumuman** di portal ini ya!
+
+Semua info resmi RT.001 diposting di sana. 😊` },
+
+  /* Agenda & Kegiatan */
+  { keys:['agenda','kegiatan','jadwal','acara','rapat','kerja bakti'],
+    ans:`📅 Untuk melihat jadwal kegiatan RT.001, buka menu **Agenda** di portal ini.
+
+Ada rapat, kerja bakti, dan kegiatan warga lainnya di sana! 🏘️` },
+
+  /* Galeri */
+  { keys:['galeri','foto','dokumentasi','gambar'],
+    ans:`🖼️ Foto-foto kegiatan RT.001 bisa dilihat di menu **Galeri Foto**.
+
+Admin bisa menambahkan foto kegiatan langsung dari portal! 📸` },
+
+  /* Login & Akun */
+  { keys:['login','masuk','password','kata sandi','username','admin','akun'],
+    ans:`🔐 **Cara Login Portal:**
+
+**Mode Warga:** klik "Masuk sebagai Warga" — bisa lihat semua info tanpa login
+
+**Mode Admin:** klik "Mode Admin" → masukkan username & password
+
+Lupa password? Hubungi pengurus RT. 😊` },
+
+  /* Salam & Sapaan */
+  { keys:['halo','hai','hello','hi','selamat','pagi','siang','sore','malam','assalamualaikum'],
+    ans:`Halo! Selamat datang di Portal RT.001 Rawabuntu! 👋😊
+
+Ada yang bisa saya bantu? Silakan tanya seputar:
+• Info pengurus RT
+• Cara pakai portal
+• Iuran & keuangan RT
+• Surat keterangan
+• Aduan warga` },
+
+  /* Terima kasih */
+  { keys:['terima kasih','makasih','thanks','thank you'],
+    ans:`Sama-sama! 😊 Senang bisa membantu warga RT.001 Rawabuntu.
+
+Ada pertanyaan lain? Jangan ragu untuk bertanya! 🏘️` },
+
+  /* Kontak darurat */
+  { keys:['darurat','emergency','kebakaran','kecelakaan','polisi','ambulans'],
+    ans:`🚨 **Kontak Darurat:**
+
+🚒 Pemadam Kebakaran: 113
+🚑 Ambulans: 118
+👮 Polisi: 110
+📞 Ketua RT Winardi: 0812-8038-8458
+
+Semoga situasinya segera teratasi! 🙏` },
+];
+
+function chatKeywordReply(msg){
+  const q = msg.toLowerCase();
+  for(const kb of CHAT_KB){
+    if(kb.keys.some(k => q.includes(k))){
+      return kb.ans;
+    }
+  }
+  /* Default jika tidak ada keyword yang cocok */
+  return `Maaf, saya belum punya jawaban untuk pertanyaan itu. 🙏
+
+Coba tanya tentang:
+• Pengurus RT (ketua, sekretaris, bendahara)
+• Iuran & keuangan
+• Surat keterangan
+• Cara kirim aduan
+• Fitur portal
+
+Atau hubungi langsung:
+📞 Ketua RT Winardi: 0812-8038-8458`;
+}
+
+function kirimChat(){
   const inp=g$('chatIn'); if(!inp) return;
   const msg=inp.value.trim(); if(!msg) return;
-  const btn=g$('chatSendBtn');
   const topics=g$('chatTopics');
 
-  /* Tampilkan pesan user */
   addChatMsg('user', msg);
   inp.value='';
-  if(btn) btn.disabled=true;
   if(topics) topics.style.display='none';
 
-  /* Update status */
   const statusEl=g$('chatStatus');
   if(statusEl) statusEl.textContent='🟡 Sedang mengetik...';
 
-  /* Tambah ke history */
-  chatHistory.push({role:'user', content: msg});
-
-  /* Batasi history 10 pesan terakhir agar tidak terlalu besar */
-  if(chatHistory.length>20) chatHistory=chatHistory.slice(-20);
-
-  /* Tampilkan typing indicator */
   const typingId=showTyping();
 
-  try {
-    const systemPrompt = `Anda adalah Asisten AI resmi Portal RT.001 Rawabuntu. Tugas Anda membantu warga dan pengurus RT.001 dengan pertanyaan seputar portal dan kehidupan warga.
-
-IDENTITAS RT.001:
-- Nama: RT.001/RW.001 Rawabuntu
-- Alamat: Jl. HML Abdul Syukur RT.001/001, Kel. Rawabuntu, Kec. Serpong, Kota Tangerang Selatan 15318
-- Pengurus: Ketua RT: Winardi (Baun) — 0812-8038-8458 | Sekretaris: Acep (Ncex) — 0895-3653-58482 | Bendahara: Nanang S — 0813-1103-4010
-
-FITUR PORTAL:
-- Dashboard: ringkasan data RT
-- Laporan Kas: transparansi keuangan RT (bisa download CSV & cetak)
-- Data Warga: daftar KK RT.001
-- Pengumuman: info resmi dari pengurus
-- Agenda: jadwal kegiatan RT
-- Aduan Warga: kirim aduan/keluhan ke pengurus
-- Surat & Formulir: permohonan surat keterangan online
-- Galeri Foto: dokumentasi kegiatan RT
-
-IURAN & KEUANGAN:
-- Iuran warga dicatat di menu Laporan Kas
-- Untuk tanya status iuran: hubungi Bendahara Nanang S
-- Laporan keuangan bisa dilihat semua warga (transparan)
-
-SURAT KETERANGAN:
-- Tersedia: Surat Domisili, SKTM, Pengantar SKCK, Surat Keterangan Warga
-- Cara: buka menu Surat & Formulir → isi form → ajukan
-- Proses: maks 1×24 jam, Senin–Sabtu 08.00–17.00 WIB
-
-ADUAN WARGA:
-- Bisa anonim atau cantumkan nama
-- Jenis: Infrastruktur, Penerangan, Kebersihan, Keamanan, Air Bersih, dll
-- Respon maks 1×24 jam
-
-${getRTContext()}
-
-INSTRUKSI:
-- Jawab dalam Bahasa Indonesia yang ramah dan mudah dipahami
-- Jawab ringkas dan langsung ke intinya (maks 3-4 kalimat kecuali butuh detail)
-- Jika pertanyaan di luar konteks RT.001, tetap bantu tapi ingatkan fokus ke RT
-- Sertakan nomor kontak pengurus jika relevan
-- Gunakan emoji secukupnya agar lebih ramah`;
-
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: chatHistory
-      })
-    });
-
+  /* Simulasi delay mengetik 800ms agar terasa natural */
+  setTimeout(()=>{
     removeTyping(typingId);
-
-    if(!response.ok){
-      const err=await response.json().catch(()=>({}));
-      throw new Error(err.error?.message||'API error '+response.status);
-    }
-
-    const data=await response.json();
-    const reply=data.content?.[0]?.text||'Maaf, tidak ada respons dari AI.';
-
-    /* Tambah respons AI ke history */
-    chatHistory.push({role:'assistant', content: reply});
+    const reply = chatKeywordReply(msg);
     addChatMsg('assistant', reply);
-
-  } catch(err){
-    removeTyping(typingId);
-    console.error('[AI Chat]', err);
-    addChatMsg('assistant', '⚠️ Maaf, asisten AI sedang tidak tersedia. Silakan hubungi pengurus RT langsung:\n📞 Ketua RT Winardi: 0812-8038-8458');
-  } finally {
-    if(btn) btn.disabled=false;
-    if(statusEl) statusEl.textContent='🟢 AI Siap Membantu';
-  }
+    if(statusEl) statusEl.textContent='🟢 Siap Membantu';
+  }, 800);
 }
 function openAgendaModal(){
   if(!isAdmin){toast('🚫 Hanya Admin!','terr');return;}
