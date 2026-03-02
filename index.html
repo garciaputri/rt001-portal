@@ -1176,34 +1176,67 @@ function setBadge(status, msg){
 }
 
 /* ══════════════════════════════════════════════════════════════
-   gasRequest — kirim via GET (JSONP-style) agar tidak kena CORS.
-   GAS Web App tidak support OPTIONS preflight, sehingga POST dengan
-   Content-Type JSON selalu gagal dari browser. GET selalu berhasil.
-   Data besar (fullSync) di-chunk dan di-compress dengan JSON+encodeURI.
+   gasRequest — kirim via script injection (JSONP pattern).
+   Ini satu-satunya cara yang 100% bebas CORS untuk GAS Web App.
+   Buat <script> tag dinamis dengan callback, GAS return JSONP.
+   Timeout 15 detik, cleanup otomatis.
    ══════════════════════════════════════════════════════════════ */
-async function gasRequest(action, payload={}){
-  const _gurl=getGasUrl();
-  if(!_gurl){ setBadge('nourl'); return {ok:false, offline:true}; }
-  try {
+function gasRequest(action, payload={}){
+  return new Promise((resolve)=>{
+    const _gurl=getGasUrl();
+    if(!_gurl){ setBadge('nourl'); resolve({ok:false,offline:true}); return; }
     setBadge('syncing');
-    /* Encode payload ke URL param — GAS baca via e.parameter.data */
-    const dataStr = encodeURIComponent(JSON.stringify(payload));
-    const ts      = encodeURIComponent(new Date().toISOString());
-    const url     = `${_gurl}?action=${action}&data=${dataStr}&ts=${ts}`;
-    const resp    = await fetch(url, {cache:'no-store', redirect:'follow'});
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
-    const text = await resp.text();
-    /* GAS kadang wrap JSON dalam callback — ambil JSON murni */
-    const json = JSON.parse(text.replace(/^[^{]*/,'').replace(/[^}]*$/,''));
-    if(json.status==='ok'){ setBadge('ok'); LS.del(LS.DIRTY); return {ok:true, data:json}; }
-    setBadge('error','⚠️ '+(json.msg||'Error'));
-    return {ok:false, msg:json.msg};
-  } catch(err){
-    console.warn('[gasRequest]', err.message);
-    setBadge('offline','📴 Tidak ada koneksi');
-    LS.set(LS.DIRTY, true);
-    return {ok:false, offline:true};
-  }
+
+    /* Buat callback unik */
+    const cbName='_gasCallback_'+Date.now();
+    let timer=null;
+
+    /* Cleanup function */
+    const cleanup=()=>{
+      try{ delete window[cbName]; }catch(e){}
+      const el=document.getElementById(cbName);
+      if(el) el.remove();
+      clearTimeout(timer);
+    };
+
+    /* Timeout 15 detik */
+    timer=setTimeout(()=>{
+      cleanup();
+      console.warn('[gasRequest] Timeout');
+      setBadge('offline','📴 Timeout - cek koneksi');
+      LS.set(LS.DIRTY,true);
+      resolve({ok:false,offline:true});
+    },15000);
+
+    /* Global callback yang dipanggil GAS */
+    window[cbName]=(json)=>{
+      cleanup();
+      if(json && json.status==='ok'){
+        setBadge('ok'); LS.del(LS.DIRTY);
+        resolve({ok:true,data:json});
+      } else {
+        setBadge('error','⚠️ '+(json&&json.msg||'Error GAS'));
+        resolve({ok:false,msg:json&&json.msg});
+      }
+    };
+
+    /* Encode data */
+    const dataStr=encodeURIComponent(JSON.stringify(payload));
+    const ts=encodeURIComponent(new Date().toISOString());
+    const url=`${_gurl}?action=${action}&data=${dataStr}&ts=${ts}&callback=${cbName}`;
+
+    /* Inject script tag */
+    const s=document.createElement('script');
+    s.id=cbName; s.src=url;
+    s.onerror=()=>{
+      cleanup();
+      console.warn('[gasRequest] Failed to fetch');
+      setBadge('offline','📴 Tidak ada koneksi');
+      LS.set(LS.DIRTY,true);
+      resolve({ok:false,offline:true});
+    };
+    document.head.appendChild(s);
+  });
 }
 
 /* ── LOAD DATA DARI SHEETS ──
