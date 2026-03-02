@@ -1181,7 +1181,7 @@ function setBadge(status, msg){
    Netlify Function yang forward ke GAS di server side.
    ══════════════════════════════════════════════════════════════ */
 async function gasRequest(action, payload={}){
-  if(!getGasUrl()){ setBadge('nourl'); return {ok:false,offline:true}; }
+  /* Proxy /api/gas — tidak perlu cek GAS URL di browser */
   setBadge('syncing');
   try {
     const resp = await fetch('/api/gas', {
@@ -1213,8 +1213,7 @@ async function gasRequest(action, payload={}){
    Dipanggil saat login. Ambil semua data dari Sheets, timpa cache lokal.
    Ini memastikan semua perangkat dapat data yang SAMA. */
 async function loadFromSheets(){
-  const _gurl2=getGasUrl();
-  if(!_gurl2){ setBadge('nourl','⚙️ GAS URL belum diatur'); return false; }
+  /* Proxy /api/gas — tidak perlu cek URL di browser */
   setBadge('syncing','🔄 Memuat data...');
   try {
     /* Gunakan gasRequest agar konsisten — semua via GET */
@@ -1340,13 +1339,7 @@ function enterApp(nama, role, mode){
     const ok = await loadFromSheets();
     hideLoadingOverlay();
     if(ok) renderAll();
-    /* Prompt admin untuk setup GAS jika belum ada URL */
-    if(mode==='admin' && !getGasUrl()){
-      setTimeout(()=>{
-        openM('mGasSetup');
-        toast('⚙️ Setup koneksi Sheets agar data tersinkron di semua perangkat!','twarn');
-      }, 1000);
-    }
+    /* GAS URL sudah dihandle proxy — tidak perlu prompt setup */
   }, 600);
 }
 
@@ -1751,7 +1744,7 @@ function renderAll(){
 }
 function updateGasStatusCard(){
   const el=g$('gasStatusCard'); if(!el) return;
-  if(getGasUrl()){
+  if(true){ /* proxy selalu aktif */
     el.innerHTML='<span style="color:var(--ok);font-weight:700;">✅ Terhubung</span> — Data akan tersinkronisasi ke Google Sheets secara otomatis.';
     el.style.borderLeft='4px solid var(--ok)';
   } else {
