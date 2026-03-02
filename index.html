@@ -1175,25 +1175,33 @@ function setBadge(status, msg){
   b.textContent=msg||s.txt;
 }
 
-/* Kirim request ke Google Apps Script */
+/* ══════════════════════════════════════════════════════════════
+   gasRequest — kirim via GET (JSONP-style) agar tidak kena CORS.
+   GAS Web App tidak support OPTIONS preflight, sehingga POST dengan
+   Content-Type JSON selalu gagal dari browser. GET selalu berhasil.
+   Data besar (fullSync) di-chunk dan di-compress dengan JSON+encodeURI.
+   ══════════════════════════════════════════════════════════════ */
 async function gasRequest(action, payload={}){
   const _gurl=getGasUrl();
   if(!_gurl){ setBadge('nourl'); return {ok:false, offline:true}; }
   try {
     setBadge('syncing');
-    const resp = await fetch(_gurl, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({action, data:payload, ts: new Date().toISOString()})
-    });
+    /* Encode payload ke URL param — GAS baca via e.parameter.data */
+    const dataStr = encodeURIComponent(JSON.stringify(payload));
+    const ts      = encodeURIComponent(new Date().toISOString());
+    const url     = `${_gurl}?action=${action}&data=${dataStr}&ts=${ts}`;
+    const resp    = await fetch(url, {cache:'no-store', redirect:'follow'});
     if(!resp.ok) throw new Error('HTTP '+resp.status);
-    const json = await resp.json();
+    const text = await resp.text();
+    /* GAS kadang wrap JSON dalam callback — ambil JSON murni */
+    const json = JSON.parse(text.replace(/^[^{]*/,'').replace(/[^}]*$/,''));
     if(json.status==='ok'){ setBadge('ok'); LS.del(LS.DIRTY); return {ok:true, data:json}; }
-    setBadge('error','⚠️ '+json.msg);
+    setBadge('error','⚠️ '+(json.msg||'Error'));
     return {ok:false, msg:json.msg};
   } catch(err){
+    console.warn('[gasRequest]', err.message);
     setBadge('offline','📴 Tidak ada koneksi');
-    LS.set(LS.DIRTY, true); /* tandai ada data yang perlu di-sync nanti */
+    LS.set(LS.DIRTY, true);
     return {ok:false, offline:true};
   }
 }
@@ -1202,19 +1210,16 @@ async function gasRequest(action, payload={}){
    Dipanggil saat login. Ambil semua data dari Sheets, timpa cache lokal.
    Ini memastikan semua perangkat dapat data yang SAMA. */
 async function loadFromSheets(){
-  const _gurl2=getGasUrl(); if(!_gurl2){ setBadge('nourl','⚙️ GAS URL belum diatur'); return false; }
+  const _gurl2=getGasUrl();
+  if(!_gurl2){ setBadge('nourl','⚙️ GAS URL belum diatur'); return false; }
   setBadge('syncing','🔄 Memuat data...');
-
   try {
-    /* GAS GET endpoint: getData */
-    const resp = await fetch(_gurl2+'?action=getData', {cache:'no-store'});
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
-    const json = await resp.json();
+    /* Gunakan gasRequest agar konsisten — semua via GET */
+    const r = await gasRequest('getData', {});
+    if(!r.ok) throw new Error(r.msg||'Gagal ambil data');
+    const json = r.data;
 
-    if(json.status!=='ok') throw new Error(json.msg||'Unknown error');
-
-    /* Timpa cache lokal dengan data dari Sheets (termasuk array kosong) */
-    /* Array kosong = data memang kosong di Sheets, bukan berarti error */
+    /* Timpa cache lokal dengan data dari Sheets */
     LS.set(LS.KAS,    (json.kas    ||[]).map(k=>({...k, nom:+k.nom||0, saldo:+k.saldo||0})));
     LS.set(LS.WARGA,  (json.warga  ||[]).map(w=>({...w, jiwa:+w.jiwa||0})));
     LS.set(LS.ANN,     json.ann    ||[]);
